@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKPM Kualiti@Sekolah - Standard 3.1 Pengurusan Kurikulum</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navigation -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-graduation-cap text-2xl text-amber-400"></i>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">SKPM Kualiti@Sekolah</h1>
+                    <p class="text-xs text-indigo-200">Standard 3.1: Pengurusan Kurikulum</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="navFormBtn" onclick="showTab('form')" class="px-3 py-1.5 rounded-lg text-sm font-medium transition bg-indigo-700 text-white shadow">
+                    <i class="fa-solid fa-pen-to-square mr-1"></i> Borang
+                </button>
+                <button id="navAdminBtn" onclick="openAdminAuthModal()" class="px-3 py-1.5 rounded-lg text-sm font-medium transition bg-indigo-800 hover:bg-indigo-700 text-indigo-100">
+                    <i class="fa-solid fa-lock mr-1"></i> Admin / Data
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
+
+        <!-- Banner Info Standard -->
+        <div class="bg-white border-l-4 border-indigo-600 rounded-r-xl shadow-sm p-4 mb-6">
+            <div class="flex items-start justify-between">
+                <div>
+                    <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 mb-1">
+                        STANDARD 3: PENGURUSAN KURIKULUM, KOKURIKULUM DAN HAL EHWAL MURID
+                    </span>
+                    <h2 class="text-xl font-bold text-slate-800">STANDARD 3.1: PENGURUSAN KURIKULUM</h2>
+                    <p class="text-xs md:text-sm text-slate-600 mt-1">
+                        <strong>Pernyataan Standard:</strong> Bidang kurikulum, kokurikulum dan hal ehwal murid diurus secara cekap dan berkesan untuk melahirkan murid yang seimbang daripada segi intelek, rohani, emosi, jasmani dan sosial selaras dengan hala tuju sekolah.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: FORM SECTION -->
+        <section id="formTab" class="block space-y-6">
+            <form id="skpmForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                <!-- Respondent Info Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                    <h3 class="text-lg font-bold text-slate-800 border-b pb-2 mb-4 flex items-center">
+                        <i class="fa-solid fa-id-card text-indigo-600 mr-2"></i> Maklumat Responden / Penilai
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Penuh <span class="text-red-500">*</span></label>
+                            <input type="text" id="respName" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="cth: Ahmad bin Ali">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Jawatan / Peranan <span class="text-red-500">*</span></label>
+                            <input type="text" id="respRole" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="cth: Ketua Panitia Matematik">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Sekolah / Kod Sekolah <span class="text-red-500">*</span></label>
+                            <input type="text" id="respSchool" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="cth: SK Murni Jaya (ABA1234)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Questions Container (Populated dynamically from PDF specs) -->
+                <div id="questionsList" class="space-y-6"></div>
+
+                <!-- Submit Button -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex justify-between items-center sticky bottom-4 z-30">
+                    <span class="text-xs text-slate-500">Sila pastikan semua jawapan disemak sebelum dihantar.</span>
+                    <button type="submit" id="submitBtn" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-md transition flex items-center space-x-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Hantar Penilaian</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- TAB 2: ADMIN & DATA DASHBOARD -->
+        <section id="adminTab" class="hidden space-y-6">
+            <!-- Top Controls -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                        <i class="fa-solid fa-database text-emerald-600 mr-2"></i> Paparan Data Real-Time (Kutipan Google Sheet)
+                    </h3>
+                    <p class="text-xs text-slate-500">Semua entri yang dihantar secara maya dari pelbagai peranti disimpan di sini secara langsung.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="exportToCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow flex items-center space-x-1">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Eksport CSV (Google Sheet Format)</span>
+                    </button>
+                    <button onclick="exportToJSON()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow flex items-center space-x-1">
+                        <i class="fa-solid fa-file-code"></i>
+                        <span>Eksport JSON</span>
+                    </button>
+                    <button onclick="lockAdminSession()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center space-x-1">
+                        <i class="fa-solid fa-lock"></i>
+                        <span>Kunci Semula Admin</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Overview Card -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-indigo-500">
+                    <div class="text-xs text-slate-500 font-medium">Jumlah Responden</div>
+                    <div id="statTotal" class="text-2xl font-bold text-slate-800 mt-1">0</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-emerald-500">
+                    <div class="text-xs text-slate-500 font-medium">Status Rangkaian Data</div>
+                    <div class="text-sm font-semibold text-emerald-600 mt-1 flex items-center">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> Live Sync Active
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-amber-500">
+                    <div class="text-xs text-slate-500 font-medium">Kemas kini Terakhir</div>
+                    <div id="statLastUpdate" class="text-sm font-medium text-slate-700 mt-1">-</div>
+                </div>
+            </div>
+
+            <!-- Data Spreadsheet View Table -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-3 bg-slate-100 border-b flex justify-between items-center text-xs text-slate-600">
+                    <span class="font-semibold"><i class="fa-solid fa-table-cells mr-1"></i> Format Lembaran Google Sheet (Jadual Lengkap Responden)</span>
+                    <span id="dataRowCount" class="bg-slate-200 px-2 py-0.5 rounded text-slate-700 font-mono">0 Rekod</span>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar max-h-[500px]">
+                    <table id="dataTable" class="min-w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-200 text-slate-700 uppercase font-semibold sticky top-0 z-20 shadow-sm">
+                            <tr id="tableHeaderRow">
+                                <th class="p-2.5 border whitespace-nowrap">ID / Tarikh</th>
+                                <th class="p-2.5 border whitespace-nowrap">Nama Penilai</th>
+                                <th class="p-2.5 border whitespace-nowrap">Jawatan</th>
+                                <th class="p-2.5 border whitespace-nowrap">Sekolah</th>
+                                <!-- Dynamic standard item columns will be inserted here -->
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-200 text-slate-700">
+                            <tr>
+                                <td colspan="10" class="p-6 text-center text-slate-400">Memuatkan data secara langsung...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Individual Response Detail Modal Preview -->
+            <div id="individualExportSection" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hidden">
+                <div class="flex justify-between items-center border-b pb-3 mb-4">
+                    <h4 class="font-bold text-slate-800 text-base flex items-center">
+                        <i class="fa-solid fa-user-check text-indigo-600 mr-2"></i> Paparan Set Jawapan Individu Responden
+                    </h4>
+                    <button onclick="closeIndividualExport()" class="text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                <div id="individualContent" class="space-y-4">
+                    <!-- Individual detailed scoring sheet populated here -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Admin Password Protection -->
+    <div id="adminAuthModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl border max-w-sm w-full p-6 space-y-4 transform transition-all">
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center mx-auto text-xl mb-2">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">Akses Pentadbir (Admin)</h3>
+                <p class="text-xs text-slate-500">Masukkan kata kunci untuk mengakses kutipan data penuh dan eksport.</p>
+            </div>
+            <form onsubmit="verifyAdminPass(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Kunci (Password)</label>
+                    <input type="password" id="adminPassInput" required class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Masukkan kata kunci admin">
+                </div>
+                <div id="authErrorMsg" class="text-xs text-red-500 hidden font-medium">Kata kunci salah! Sila cuba lagi.</div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeAdminAuthModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-200">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700">Masuk</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification System -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 z-50 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center space-x-3 text-sm">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg">Tindakan berjaya.</span>
+    </div>
+
+    <!-- Firebase Modular SDK Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration & Initialization
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : { apiKey: "demo-key", authDomain: "demo.firebaseapp.com", projectId: "demo-project" };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'skpm-standard31-app';
+
+        let currentUser = null;
+        let responsesData = [];
+
+        // Authenticate User
+        async function authenticate() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.error("Auth error:", err);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                initRealtimeListener();
+            }
+        });
+
+        // Real-time Firestore Listener
+        function initRealtimeListener() {
+            if (!currentUser) return;
+            // RULE 1: Standardized Firestore Path
+            const dataColl = collection(db, 'artifacts', appId, 'public', 'data', 'skpm_responses');
+            
+            // RULE 2: Simple Query without orderby/where to avoid index dependencies
+            onSnapshot(dataColl, (snapshot) => {
+                responsesData = [];
+                snapshot.forEach(doc => {
+                    responsesData.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort in JS Memory (descending timestamp)
+                responsesData.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+
+                window.appState = window.appState || {};
+                window.appState.responses = responsesData;
+
+                renderDataTable();
+                updateStats();
+            }, (error) => {
+                console.error("Firestore error:", error);
+            });
+        }
+
+        // Global function to push form submissions
+        window.saveResponseToFirestore = async function(payload) {
+            if (!currentUser) {
+                await authenticate();
+            }
+            try {
+                const dataColl = collection(db, 'artifacts', appId, 'public', 'data', 'skpm_responses');
+                await addDoc(dataColl, payload);
+                return true;
+            } catch (e) {
+                console.error("Error saving document: ", e);
+                return false;
+            }
+        };
+
+        // Initialize Authentication on startup
+        authenticate();
+    </script>
+
+    <!-- Main Logic & UI Scripts -->
+    <script>
+        // Data Structure extracted verbatim from panitia.pdf
+        const skpmData = [
+            {
+                aspectCode: "3.1.1",
+                aspectTitle: "ASPEK 3.1.1: KETETAPAN PELAKSANAAN KURIKULUM",
+                stdCode: "3.1.1.1",
+                stdTitle: "Pelaksanaan kurikulum diurus secara sistematik dan terancang.",
+                actionText: "Membuat, mendokumen, menyebar luas dan menyemak semula ketetapan dengan mematuhi arahan yang berkuat kuasa dan mematuhi prosedur, mengikut keperluan dan kesesuaian sekolah, secara menyeluruh, spesifik, dan jelas.",
+                items: [
+                    { id: "3.1.1.1_a", label: "a) Membuat ketetapan", rubric: {
+                        4: "dengan mematuhi arahan yang berkuat kuasa, secara menyeluruh dalam semua perkara (penubuhan panitia, kewangan, pentaksiran, penjaminan kualiti 4P, latihan, digital/PdPR, sumber, jadual), mengikut keperluan sekolah & secara spesifik",
+                        3: "dengan mengambil kira perkara (i) dan mana-mana dua (2) perkara",
+                        2: "dengan mengambil kira perkara (i) dan mana-mana satu (1) perkara",
+                        1: "dengan mengambil kira mana-mana perkara (ii) atau (iii) atau (iv)",
+                        0: "tidak mengambil kira mana-mana perkara"
+                    }},
+                    { id: "3.1.1.1_b", label: "b) Mendokumenkan ketetapan", rubric: {
+                        4: "dengan mematuhi prosedur, secara menyeluruh dalam semua perkara, mengikut keperluan sekolah & secara jelas",
+                        3: "dengan mengambil kira perkara (i) dan mana-mana dua (2) perkara",
+                        2: "dengan mengambil kira perkara (i) dan mana-mana satu (1) perkara",
+                        1: "dengan mengambil kira mana-mana perkara (ii) atau (iii) atau (iv)",
+                        0: "tidak mengambil kira mana-mana perkara"
+                    }},
+                    { id: "3.1.1.1_c", label: "c) Menyebarluaskan ketetapan", rubric: {
+                        4: "dengan mematuhi arahan yang berkuat kuasa, secara menyeluruh dalam semua perkara, mengikut kesesuaian sekolah & secara jelas",
+                        3: "dengan mengambil kira perkara (i) dan mana-mana dua (2) perkara",
+                        2: "dengan mengambil kira perkara (i) dan mana-mana satu (1) perkara",
+                        1: "dengan mengambil kira mana-mana perkara (ii) atau (iii) atau (iv)",
+                        0: "tidak mengambil kira mana-mana perkara"
+                    }},
+                    { id: "3.1.1.1_d", label: "d) Menyemak semula ketetapan", rubric: {
+                        4: "dengan mematuhi arahan yang berkuat kuasa, secara menyeluruh dalam semua perkara, mengikut kesesuaian sekolah & secara jelas",
+                        3: "dengan mengambil kira perkara (i) dan mana-mana dua (2) perkara",
+                        2: "dengan mengambil kira perkara (i) dan mana-mana satu (1) perkara",
+                        1: "dengan mengambil kira mana-mana perkara (ii) atau (iii) atau (iv)",
+                        0: "tidak mengambil kira mana-mana perkara"
+                    }}
+                ]
+            },
+            {
+                aspectCode: "3.1.2",
+                aspectTitle: "ASPEK 3.1.2: PENGURUSAN MATA PELAJARAN",
+                stdCode: "3.1.2.1",
+                stdTitle: "Pelaksanaan mata pelajaran diurus secara profesional dan terancang.",
+                actionText: "Memperoleh dokumen kurikulum, menyelaras penyediaan RPT dan RPH, pentaksiran, tugasan, menganalisis data dan mengambil tindakan susulan dengan mematuhi arahan yang berkuat kuasa, berdasarkan keperluan, kesesuaian, dan secara menyeluruh.",
+                items: [
+                    { id: "3.1.2.1_a", label: "a) Memperoleh dokumen kurikulum", rubric: { 4: "Mematuhi arahan, keperluan kurikulum & menyeluruh semua tahun/tingkatan", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi perkara (i)", 1: "Mematuhi (ii) atau (iii)", 0: "Tidak mengambil kira mana-mana perkara" }},
+                    { id: "3.1.2.1_b", label: "b) Menyelaras penyediaan RPT dan RPH", rubric: { 4: "Mematuhi arahan, kesesuaian kurikulum & menyeluruh semua tahun/tingkatan", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi perkara (i)", 1: "Mematuhi (ii) atau (iii)", 0: "Tidak mengambil kira mana-mana perkara" }},
+                    { id: "3.1.2.1_c", label: "c) Menyelaras pentaksiran", rubric: { 4: "Mematuhi arahan, keperluan kurikulum & menyeluruh semua tahun/tingkatan", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi perkara (i)", 1: "Mematuhi (ii) atau (iii)", 0: "Tidak mengambil kira mana-mana perkara" }},
+                    { id: "3.1.2.1_d", label: "d) Menyelaras tugasan murid", rubric: { 4: "Mematuhi ketetapan kurikulum, kesesuaian & menyeluruh semua tahun/tingkatan", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi perkara (i)", 1: "Mematuhi (ii) atau (iii)", 0: "Tidak mengambil kira mana-mana perkara" }},
+                    { id: "3.1.2.1_e", label: "e) Menganalisis data dan maklumat pentaksiran", rubric: { 4: "Mematuhi arahan, kesesuaian & menyeluruh semua tahun/tingkatan", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi perkara (i)", 1: "Mematuhi (ii) atau (iii)", 0: "Tidak mengambil kira mana-mana perkara" }},
+                    { id: "3.1.2.1_f", label: "f) Mengambil tindakan susulan", rubric: { 4: "Mematuhi arahan, kesesuaian & menyeluruh semua tahun/tingkatan", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi perkara (i)", 1: "Mematuhi (ii) atau (iii)", 0: "Tidak mengambil kira mana-mana perkara" }}
+                ]
+            },
+            {
+                aspectCode: "3.1.2",
+                aspectTitle: "ASPEK 3.1.2: PENGURUSAN MATA PELAJARAN",
+                stdCode: "3.1.2.2",
+                stdTitle: "Program peningkatan kualiti pengajaran guru diurus secara terancang.",
+                actionText: "Merancang dan melaksanakan program pembangunan profesionalisme (PLC, bengkel, dll), menilai keberkesanan dan mengambil tindakan susulan berfokus keperluan guru/panitia, perkembangan semasa, secara objektif & berkala.",
+                items: [
+                    { id: "3.1.2.2_a", label: "a) Merancang program pembangunan profesionalisme", rubric: { 4: "Berfokus keperluan guru/panitia, perkembangan pendidikan semasa & dari semasa ke semasa", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi (ii) & (iii)", 1: "Mematuhi mana-mana satu (1) perkara", 0: "Tidak mengambil kira mana-mana perkara" }},
+                    { id: "3.1.2.2_b", label: "b) Melaksanakan program pembangunan profesionalisme", rubric: { 4: "Berfokus keperluan guru/panitia, perkembangan pendidikan semasa & dari semasa ke semasa", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi (ii) & (iii)", 1: "Mematuhi mana-mana satu (1) perkara", 0: "Tidak mengambil kira mana-mana perkara" }},
+                    { id: "3.1.2.2_c", label: "c) Menilai keberkesanan program", rubric: { 4: "Berfokus keperluan guru/panitia, perkembangan pendidikan semasa & dari semasa ke semasa", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi (ii) & (iii)", 1: "Mematuhi mana-mana satu (1) perkara", 0: "Tidak mengambil kira mana-mana perkara" }},
+                    { id: "3.1.2.2_d", label: "d) Mengambil tindakan susulan", rubric: { 4: "Berfokus keperluan guru/panitia, secara objektif & dari semasa ke semasa", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi (ii) & (iii)", 1: "Mematuhi mana-mana satu (1) perkara", 0: "Tidak mengambil kira mana-mana perkara" }}
+                ]
+            },
+            {
+                aspectCode: "3.1.2",
+                aspectTitle: "ASPEK 3.1.2: PENGURUSAN MATA PELAJARAN",
+                stdCode: "3.1.2.3",
+                stdTitle: "Program peningkatan pencapaian murid diurus secara profesional dan terancang.",
+                actionText: "Merancang dan melaksanakan program peningkatan ilmu/kemahiran, menilai keberkesanan dan mengambil tindakan susulan berfokus keperluan murid, keupayaan/potensi, secara menyeluruh & berkala.",
+                items: [
+                    { id: "3.1.2.3_a", label: "a) Merancang program peningkatan ilmu & kemahiran", rubric: { 4: "Berfokus keperluan murid, potensi, libat semua tahun/tingkatan & dari semasa ke semasa", 3: "Mengambil kira mana-mana 3 perkara", 2: "Mengambil kira mana-mana 2 perkara", 1: "Mengambil kira mana-mana 1 perkara", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.2.3_b", label: "b) Melaksanakan program peningkatan ilmu & kemahiran", rubric: { 4: "Berfokus keperluan murid, potensi, libat semua tahun/tingkatan & dari semasa ke semasa", 3: "Mengambil kira mana-mana 3 perkara", 2: "Mengambil kira mana-mana 2 perkara", 1: "Mengambil kira mana-mana 1 perkara", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.2.3_c", label: "c) Menilai keberkesanan program", rubric: { 4: "Berfokus keperluan murid, potensi, secara menyeluruh & dari semasa ke semasa", 3: "Mengambil kira mana-mana 3 perkara", 2: "Mengambil kira mana-mana 2 perkara", 1: "Mengambil kira mana-mana 1 perkara", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.2.3_d", label: "d) Mengambil tindakan susulan", rubric: { 4: "Berfokus keperluan murid, potensi, secara menyeluruh & dari semasa ke semasa", 3: "Mengambil kira mana-mana 3 perkara", 2: "Mengambil kira mana-mana 2 perkara", 1: "Mengambil kira mana-mana 1 perkara", 0: "Tidak mengambil kira" }}
+                ]
+            },
+            {
+                aspectCode: "3.1.2",
+                aspectTitle: "ASPEK 3.1.2: PENGURUSAN MATA PELAJARAN",
+                stdCode: "3.1.2.4",
+                stdTitle: "Bantuan geran per kapita (PCG) mata pelajaran dimanfaatkan secara sistematik dan terancang.",
+                actionText: "Merancang/melaksana perbelanjaan, memanfaat sumber pendidikan & merekod penggunaan mengikut prosedur, keperluan, kesesuaian, menyeluruh, optimum & berkala.",
+                items: [
+                    { id: "3.1.2.4_a", label: "a) Merancang perbelanjaan", rubric: { 4: "Mengikut prosedur, keperluan, menyeluruh & dari semasa ke semasa", 3: "Mematuhi (i) & 2 perkara lain", 2: "Mematuhi (i) & 1 perkara lain", 1: "Mematuhi (ii) atau (iii) atau (iv)", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.2.4_b", label: "b) Melaksanakan perbelanjaan", rubric: { 4: "Mengikut prosedur, kesesuaian, optimum & dari semasa ke semasa", 3: "Mematuhi (i) & 2 perkara lain", 2: "Mematuhi (i) & 1 perkara lain", 1: "Mematuhi (ii) atau (iii) atau (iv)", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.2.4_c", label: "c) Memanfaatkan sumber pendidikan", rubric: { 4: "Mengikut prosedur, kesesuaian, optimum & dari semasa ke semasa", 3: "Mematuhi (i) & 2 perkara lain", 2: "Mematuhi (i) & 1 perkara lain", 1: "Mematuhi (ii) atau (iii) atau (iv)", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.2.4_d", label: "d) Merekodkan penerimaan dan penggunaan sumber", rubric: { 4: "Mengikut prosedur, kesesuaian, menyeluruh & dari semasa ke semasa", 3: "Mematuhi (i) & 2 perkara lain", 2: "Mematuhi (i) & 1 perkara lain", 1: "Mematuhi (ii) atau (iii) atau (iv)", 0: "Tidak mengambil kira" }}
+                ]
+            },
+            {
+                aspectCode: "3.1.3",
+                aspectTitle: "ASPEK 3.1.3: PENGURUSAN MASA INSTRUKSIONAL",
+                stdCode: "3.1.3.1",
+                stdTitle: "Masa pelaksanaan PdP diurus secara sistematik dan terancang.",
+                actionText: "Menyediakan jadual waktu, melaksanakan PdP dijadualkan, menyusun semula jadual waktu dan menyelaras program sekolah mengikut arahan, ketetapan kurikulum dan kesesuaian.",
+                items: [
+                    { id: "3.1.3.1_a", label: "a) Menyediakan jadual waktu induk, kelas, guru, ganti & bilik khas", rubric: { 4: "Mematuhi arahan berkuat kuasa, ketetapan kurikulum & kesesuaian", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi perkara (i)", 1: "Mematuhi (ii) atau (iii)", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.3.1_b", label: "b) Melaksanakan PdP seperti yang dijadualkan", rubric: { 4: "Mematuhi arahan berkuat kuasa, ketetapan kurikulum & kesesuaian", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi perkara (i)", 1: "Mematuhi (ii) atau (iii)", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.3.1_c", label: "c) Menyusun semula jadual waktu", rubric: { 4: "Mematuhi arahan berkuat kuasa, ketetapan kurikulum & kesesuaian", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi perkara (i)", 1: "Mematuhi (ii) atau (iii)", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.3.1_d", label: "d) Menyelaras program sekolah", rubric: { 4: "Mematuhi arahan berkuat kuasa, ketetapan kurikulum & kesesuaian", 3: "Mematuhi (i) & (ii) atau (i) & (iii)", 2: "Mematuhi perkara (i)", 1: "Mematuhi (ii) atau (iii)", 0: "Tidak mengambil kira" }}
+                ]
+            },
+            {
+                aspectCode: "3.1.4",
+                aspectTitle: "ASPEK 3.1.4: PENGURUSAN PENILAIAN MURID",
+                stdCode: "3.1.4.1",
+                stdTitle: "Peperiksaan dan pentaksiran diurus secara sistematik dan terancang.",
+                actionText: "Merancang, menyelaras, melaksanakan peperiksaan/pentaksiran, menganalisis data & mengambil tindakan susulan/intervensi mengikut arahan, ketetapan, keperluan & menyeluruh.",
+                items: [
+                    { id: "3.1.4.1_a", label: "a) Merancang peperiksaan dan pentaksiran", rubric: { 4: "Mengikut arahan berkuat kuasa, keperluan, menyeluruh & dari semasa ke semasa", 3: "Mematuhi (i) & 2 perkara lain", 2: "Mematuhi (i) & 1 perkara lain", 1: "Mematuhi (ii) atau (iii) atau (iv)", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.4.1_b", label: "b) Menyelaras peperiksaan dan pentaksiran", rubric: { 4: "Mengikut ketetapan, kesesuaian, menyeluruh & dari semasa ke semasa", 3: "Mematuhi (i) & 2 perkara lain", 2: "Mematuhi (i) & 1 perkara lain", 1: "Mematuhi (ii) atau (iii) atau (iv)", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.4.1_c", label: "c) Melaksanakan peperiksaan dan pentaksiran", rubric: { 4: "Mengikut ketetapan, kesesuaian, menyeluruh & dari semasa ke semasa", 3: "Mematuhi (i) & 2 perkara lain", 2: "Mematuhi (i) & 1 perkara lain", 1: "Mematuhi (ii) atau (iii) atau (iv)", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.4.1_d", label: "d) Menganalisis data dan maklumat peperiksaan/pentaksiran", rubric: { 4: "Mengikut arahan, kesesuaian, menyeluruh & dari semasa ke semasa", 3: "Mematuhi (i) & 2 perkara lain", 2: "Mematuhi (i) & 1 perkara lain", 1: "Mematuhi (ii) atau (iii) atau (iv)", 0: "Tidak mengambil kira" }},
+                    { id: "3.1.4.1_e", label: "e) Mengambil tindakan susulan / intervensi", rubric: { 4: "Mengikut arahan, kesesuaian, menyeluruh & dari semasa ke semasa", 3: "Mematuhi (i) & 2 perkara lain", 2: "Mematuhi (i) & 1 perkara lain", 1: "Mematuhi (ii) atau (iii) atau (iv)", 0: "Tidak mengambil kira" }}
+                ]
+            }
+        ];
+
+        // State variables
+        let isAdminLoggedIn = false;
+        const ADMIN_PASSWORD = "admin123"; // Default admin password
+
+        // Initialize Form Elements dynamically
+        function renderQuestionsForm() {
+            const container = document.getElementById('questionsList');
+            container.innerHTML = '';
+
+            skpmData.forEach((section, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4";
+                
+                let itemsHtml = '';
+                section.items.forEach((item) => {
+                    itemsHtml += `
+                        <div class="border-t pt-4 mt-3">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-2 gap-1">
+                                <label class="font-semibold text-sm text-slate-800">${item.label}</label>
+                                <span class="text-xs text-indigo-600 font-medium">Penskoran (0 - 4)</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 mt-2">
+                                ${[4, 3, 2, 1, 0].map(score => `
+                                    <label class="flex flex-col p-2.5 border rounded-lg hover:bg-slate-50 cursor-pointer transition relative text-xs">
+                                        <div class="flex items-center justify-between font-bold mb-1">
+                                            <span class="${score === 4 ? 'text-emerald-600' : score === 0 ? 'text-red-500' : 'text-slate-700'}">Skor ${score}</span>
+                                            <input type="radio" name="${item.id}" value="${score}" required class="text-indigo-600 focus:ring-indigo-500">
+                                        </div>
+                                        <span class="text-[11px] text-slate-500 leading-tight">${item.rubric[score]}</span>
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="border-b pb-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-indigo-600 text-white font-mono font-bold px-2 py-0.5 rounded text-xs">${section.stdCode}</span>
+                            <span class="text-xs font-bold text-slate-500">${section.aspectTitle}</span>
+                        </div>
+                        <h4 class="text-base font-bold text-slate-800 mt-1">${section.stdTitle}</h4>
+                        <p class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg mt-2 border border-slate-100">
+                            <strong>Tindakan Mencapai Standard:</strong> ${section.actionText}
+                        </p>
+                    </div>
+                    ${itemsHtml}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Form Submit Handler
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Menghantar...</span>`;
+
+            const name = document.getElementById('respName').value.trim();
+            const role = document.getElementById('respRole').value.trim();
+            const school = document.getElementById('respSchool').value.trim();
+
+            const answers = {};
+            let totalItems = 0;
+            let totalScore = 0;
+
+            skpmData.forEach(section => {
+                section.items.forEach(item => {
+                    const selected = document.querySelector(`input[name="${item.id}"]:checked`);
+                    const val = selected ? parseInt(selected.value) : 0;
+                    answers[item.id] = val;
+                    totalScore += val;
+                    totalItems++;
+                });
+            });
+
+            const maxPossible = totalItems * 4;
+            const percentage = ((totalScore / maxPossible) * 100).toFixed(2);
+
+            const payload = {
+                timestamp: new Date().toISOString(),
+                formattedDate: new Date().toLocaleString('ms-MY'),
+                evaluatorName: name,
+                role: role,
+                school: school,
+                scores: answers,
+                totalScore: totalScore,
+                maxScore: maxPossible,
+                percentage: percentage
+            };
+
+            const success = await window.saveResponseToFirestore(payload);
+
+            if (success) {
+                showToast("Maklumat penilaian berjaya dihantar ke Google Sheet real-time!", "success");
+                document.getElementById('skpmForm').reset();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showToast("Gagal menyimpan data. Sila semak rangkaian internet.", "error");
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>Hantar Penilaian</span>`;
+        }
+
+        // Render Data Table for Admin (Spreadsheet-like format)
+        function renderDataTable() {
+            const tableHeaderRow = document.getElementById('tableHeaderRow');
+            const tableBody = document.getElementById('tableBody');
+            const responses = window.appState ? window.appState.responses : [];
+
+            // Setup Header Columns if not already
+            let allItemIds = [];
+            skpmData.forEach(s => s.items.forEach(i => allItemIds.push(i.id)));
+
+            tableHeaderRow.innerHTML = `
+                <th class="p-2.5 border whitespace-nowrap bg-slate-200">Tarikh Masa</th>
+                <th class="p-2.5 border whitespace-nowrap bg-slate-200">Nama Penilai</th>
+                <th class="p-2.5 border whitespace-nowrap bg-slate-200">Jawatan</th>
+                <th class="p-2.5 border whitespace-nowrap bg-slate-200">Sekolah</th>
+                ${allItemIds.map(id => `<th class="p-2.5 border text-center whitespace-nowrap bg-indigo-100 text-indigo-900">${id}</th>`).join('')}
+                <th class="p-2.5 border text-center whitespace-nowrap bg-emerald-100 text-emerald-900">Jumlah Score</th>
+                <th class="p-2.5 border text-center whitespace-nowrap bg-amber-100 text-amber-900">% Skor</th>
+                <th class="p-2.5 border text-center whitespace-nowrap bg-slate-200">Tindakan</th>
+            `;
+
+            document.getElementById('dataRowCount').innerText = `${responses.length} Rekod`;
+
+            if (responses.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="${allItemIds.length + 7}" class="p-8 text-center text-slate-400">Tiada kutipan data direkodkan lagi.</td></tr>`;
+                return;
+            }
+
+            tableBody.innerHTML = '';
+            responses.forEach((resp, index) => {
+                const tr = document.createElement('tr');
+                tr.className = index % 2 === 0 ? 'bg-white hover:bg-slate-50' : 'bg-slate-50/50 hover:bg-slate-100';
+
+                let itemCells = allItemIds.map(id => {
+                    const val = resp.scores && resp.scores[id] !== undefined ? resp.scores[id] : '-';
+                    return `<td class="p-2 border text-center font-mono font-medium">${val}</td>`;
+                }).join('');
+
+                tr.innerHTML = `
+                    <td class="p-2 border whitespace-nowrap text-[11px]">${resp.formattedDate || resp.timestamp}</td>
+                    <td class="p-2 border font-semibold text-slate-800 whitespace-nowrap">${resp.evaluatorName || '-'}</td>
+                    <td class="p-2 border whitespace-nowrap">${resp.role || '-'}</td>
+                    <td class="p-2 border whitespace-nowrap">${resp.school || '-'}</td>
+                    ${itemCells}
+                    <td class="p-2 border text-center font-bold text-emerald-700 whitespace-nowrap">${resp.totalScore} / ${resp.maxScore}</td>
+                    <td class="p-2 border text-center font-bold text-amber-700 whitespace-nowrap">${resp.percentage}%</td>
+                    <td class="p-2 border text-center whitespace-nowrap">
+                        <button onclick="viewIndividualResponse('${resp.id}')" class="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded text-[11px] font-semibold border border-indigo-200">
+                            <i class="fa-solid fa-eye mr-1"></i> Lihat
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function updateStats() {
+            const responses = window.appState ? window.appState.responses : [];
+            document.getElementById('statTotal').innerText = responses.length;
+            if (responses.length > 0) {
+                document.getElementById('statLastUpdate').innerText = responses[0].formattedDate || 'Baru sahaja';
+            }
+        }
+
+        // View Single Individual Record
+        window.viewIndividualResponse = function(docId) {
+            const responses = window.appState ? window.appState.responses : [];
+            const data = responses.find(r => r.id === docId);
+            if (!data) return;
+
+            const section = document.getElementById('individualExportSection');
+            const content = document.getElementById('individualContent');
+
+            let breakdownHtml = '';
+            skpmData.forEach(sec => {
+                breakdownHtml += `
+                    <div class="border rounded-lg p-3 bg-slate-50/50 space-y-2">
+                        <div class="font-bold text-xs text-indigo-900">${sec.stdCode} - ${sec.stdTitle}</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            ${sec.items.map(it => `
+                                <div class="flex justify-between items-center text-xs p-2 bg-white rounded border">
+                                    <span class="text-slate-700">${it.label}</span>
+                                    <span class="font-bold font-mono px-2 py-0.5 rounded ${data.scores[it.id] === 4 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-800'}">Skor: ${data.scores[it.id] ?? 0}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-indigo-50 rounded-lg text-xs text-indigo-950 border border-indigo-100">
+                    <div><strong>Penilai:</strong> ${data.evaluatorName}</div>
+                    <div><strong>Jawatan:</strong> ${data.role}</div>
+                    <div><strong>Sekolah:</strong> ${data.school}</div>
+                    <div><strong>Tarikh Penilaian:</strong> ${data.formattedDate}</div>
+                    <div><strong>Skor Keseluruhan:</strong> ${data.totalScore} / ${data.maxScore}</div>
+                    <div><strong>Pencapaian:</strong> ${data.percentage}%</div>
+                </div>
+                <div class="space-y-3 pt-2">
+                    <h5 class="text-xs font-bold uppercase tracking-wider text-slate-500">Butiran Jawapan Mengikut Aspek</h5>
+                    ${breakdownHtml}
+                </div>
+                <div class="pt-3 border-t flex justify-end">
+                    <button onclick="printIndividualRecord('${data.id}')" class="px-3 py-1.5 bg-slate-800 text-white rounded text-xs font-medium flex items-center space-x-1">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak / Simpan PDF Individual</span>
+                    </button>
+                </div>
+            `;
+
+            section.classList.remove('hidden');
+            section.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.closeIndividualExport = function() {
+            document.getElementById('individualExportSection').classList.add('hidden');
+        };
+
+        // Export All Data to CSV (Google Sheet compatible)
+        window.exportToCSV = function() {
+            const responses = window.appState ? window.appState.responses : [];
+            if (responses.length === 0) {
+                showToast("Tiada data untuk dieksport.", "error");
+                return;
+            }
+
+            let allItemIds = [];
+            skpmData.forEach(s => s.items.forEach(i => allItemIds.push(i.id)));
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            // Header
+            const headers = ["Timestamp", "Nama Penilai", "Jawatan", "Sekolah", ...allItemIds, "Jumlah Skor", "Peratus (%)"];
+            csvContent += headers.map(h => `"${h}"`).join(",") + "\r\n";
+
+            // Rows
+            responses.forEach(r => {
+                const row = [
+                    `"${r.formattedDate || r.timestamp}"`,
+                    `"${r.evaluatorName || ''}"`,
+                    `"${r.role || ''}"`,
+                    `"${r.school || ''}"`,
+                    ...allItemIds.map(id => r.scores && r.scores[id] !== undefined ? r.scores[id] : 0),
+                    r.totalScore,
+                    r.percentage
+                ];
+                csvContent += row.join(",") + "\r\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Kutipan_SKPM_Standard_3.1_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("Fail CSV berjaya dimuat turun!", "success");
+        };
+
+        // Export All Data to JSON
+        window.exportToJSON = function() {
+            const responses = window.appState ? window.appState.responses : [];
+            if (responses.length === 0) {
+                showToast("Tiada data untuk dieksport.", "error");
+                return;
+            }
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(responses, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `Kutipan_SKPM_Standard_3.1_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+
+            showToast("Fail JSON berjaya dimuat turun!", "success");
+        };
+
+        window.printIndividualRecord = function(docId) {
+            window.print();
+        };
+
+        // Navigation Tabs Controller
+        window.showTab = function(tab) {
+            const formTab = document.getElementById('formTab');
+            const adminTab = document.getElementById('adminTab');
+            const navFormBtn = document.getElementById('navFormBtn');
+            const navAdminBtn = document.getElementById('navAdminBtn');
+
+            if (tab === 'form') {
+                formTab.classList.remove('hidden');
+                adminTab.classList.add('hidden');
+                navFormBtn.className = "px-3 py-1.5 rounded-lg text-sm font-medium transition bg-indigo-700 text-white shadow";
+                navAdminBtn.className = "px-3 py-1.5 rounded-lg text-sm font-medium transition bg-indigo-800 hover:bg-indigo-700 text-indigo-100";
+            } else if (tab === 'admin') {
+                if (!isAdminLoggedIn) {
+                    openAdminAuthModal();
+                    return;
+                }
+                formTab.classList.add('hidden');
+                adminTab.classList.remove('hidden');
+                navAdminBtn.className = "px-3 py-1.5 rounded-lg text-sm font-medium transition bg-indigo-700 text-white shadow";
+                navFormBtn.className = "px-3 py-1.5 rounded-lg text-sm font-medium transition bg-indigo-800 hover:bg-indigo-700 text-indigo-100";
+                renderDataTable();
+            }
+        };
+
+        // Admin Security Lock / Modal
+        window.openAdminAuthModal = function() {
+            if (isAdminLoggedIn) {
+                showTab('admin');
+            } else {
+                document.getElementById('adminAuthModal').classList.remove('hidden');
+                document.getElementById('adminPassInput').value = '';
+                document.getElementById('authErrorMsg').classList.add('hidden');
+            }
+        };
+
+        window.closeAdminAuthModal = function() {
+            document.getElementById('adminAuthModal').classList.add('hidden');
+        };
+
+        window.verifyAdminPass = function(e) {
+            e.preventDefault();
+            const input = document.getElementById('adminPassInput').value;
+            if (input === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                closeAdminAuthModal();
+                showTab('admin');
+                showToast("Akses Admin berjaya dibuka.", "success");
+            } else {
+                document.getElementById('authErrorMsg').classList.remove('hidden');
+            }
+        };
+
+        window.lockAdminSession = function() {
+            isAdminLoggedIn = false;
+            showTab('form');
+            showToast("Sesi Admin telah dikunci.", "info");
+        };
+
+        // Notification Toast System
+        function showToast(msg, type = "success") {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+            if (type === "success") {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else if (type === "error") {
+                toastIcon.className = "fa-solid fa-circle-xmark text-red-400";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-info text-blue-400";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+
+        // Initialize application on page load
+        window.onload = function() {
+            renderQuestionsForm();
+        };
+    </script>
+</body>
+</html>
